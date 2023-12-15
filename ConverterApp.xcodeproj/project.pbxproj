@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		415A088C2B2C647500B3FE3F /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A088B2B2C647500B3FE3F /* TabBarView.swift */; };
+		415A088E2B2C65AD00B3FE3F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A088D2B2C65AD00B3FE3F /* SettingsView.swift */; };
+		415A08942B2C707B00B3FE3F /* LocationsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A08932B2C707B00B3FE3F /* LocationsList.swift */; };
 		41E73AC72B2C5FDF002AFFA8 /* ConverterAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E73AC62B2C5FDF002AFFA8 /* ConverterAppApp.swift */; };
 		41E73AC92B2C5FDF002AFFA8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E73AC82B2C5FDF002AFFA8 /* ContentView.swift */; };
 		41E73ACB2B2C5FE1002AFFA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41E73ACA2B2C5FE1002AFFA8 /* Assets.xcassets */; };
@@ -14,6 +17,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		415A088B2B2C647500B3FE3F /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
+		415A088D2B2C65AD00B3FE3F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		415A08932B2C707B00B3FE3F /* LocationsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsList.swift; sourceTree = "<group>"; };
+		415A08952B2CE02300B3FE3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		41E73AC32B2C5FDF002AFFA8 /* ConverterApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ConverterApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		41E73AC62B2C5FDF002AFFA8 /* ConverterAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConverterAppApp.swift; sourceTree = "<group>"; };
 		41E73AC82B2C5FDF002AFFA8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -33,6 +40,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		415A088A2B2C645E00B3FE3F /* View */ = {
+			isa = PBXGroup;
+			children = (
+				415A088D2B2C65AD00B3FE3F /* SettingsView.swift */,
+				415A088B2B2C647500B3FE3F /* TabBarView.swift */,
+				415A08932B2C707B00B3FE3F /* LocationsList.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		41E73ABA2B2C5FDF002AFFA8 = {
 			isa = PBXGroup;
 			children = (
@@ -52,8 +69,10 @@
 		41E73AC52B2C5FDF002AFFA8 /* ConverterApp */ = {
 			isa = PBXGroup;
 			children = (
+				415A08952B2CE02300B3FE3F /* Info.plist */,
 				41E73AC62B2C5FDF002AFFA8 /* ConverterAppApp.swift */,
 				41E73AC82B2C5FDF002AFFA8 /* ContentView.swift */,
+				415A088A2B2C645E00B3FE3F /* View */,
 				41E73ACA2B2C5FE1002AFFA8 /* Assets.xcassets */,
 				41E73ACC2B2C5FE1002AFFA8 /* ConverterApp.entitlements */,
 				41E73ACD2B2C5FE1002AFFA8 /* Preview Content */,
@@ -140,6 +159,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				41E73AC92B2C5FDF002AFFA8 /* ContentView.swift in Sources */,
+				415A088E2B2C65AD00B3FE3F /* SettingsView.swift in Sources */,
+				415A08942B2C707B00B3FE3F /* LocationsList.swift in Sources */,
+				415A088C2B2C647500B3FE3F /* TabBarView.swift in Sources */,
 				41E73AC72B2C5FDF002AFFA8 /* ConverterAppApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -269,6 +291,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ConverterApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app requires your location to provide time zone information based on your current location.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -279,12 +304,12 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.test12.app.ConverterApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timezone.converter.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -307,6 +332,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ConverterApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app requires your location to provide time zone information based on your current location.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -317,12 +345,12 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.test12.app.ConverterApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.timezone.converter.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
