@@ -10,6 +10,8 @@
 		415A088C2B2C647500B3FE3F /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A088B2B2C647500B3FE3F /* TabBarView.swift */; };
 		415A088E2B2C65AD00B3FE3F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A088D2B2C65AD00B3FE3F /* SettingsView.swift */; };
 		415A08942B2C707B00B3FE3F /* LocationsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A08932B2C707B00B3FE3F /* LocationsList.swift */; };
+		415A08972B2DF03100B3FE3F /* MeetingSchedulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A08962B2DF03100B3FE3F /* MeetingSchedulerView.swift */; };
+		41C0B6622B30FEF70050071A /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C0B6612B30FEF70050071A /* OnboardingView.swift */; };
 		41E73AC72B2C5FDF002AFFA8 /* ConverterAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E73AC62B2C5FDF002AFFA8 /* ConverterAppApp.swift */; };
 		41E73AC92B2C5FDF002AFFA8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E73AC82B2C5FDF002AFFA8 /* ContentView.swift */; };
 		41E73ACB2B2C5FE1002AFFA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41E73ACA2B2C5FE1002AFFA8 /* Assets.xcassets */; };
@@ -21,6 +23,8 @@
 		415A088D2B2C65AD00B3FE3F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		415A08932B2C707B00B3FE3F /* LocationsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsList.swift; sourceTree = "<group>"; };
 		415A08952B2CE02300B3FE3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		415A08962B2DF03100B3FE3F /* MeetingSchedulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSchedulerView.swift; sourceTree = "<group>"; };
+		41C0B6612B30FEF70050071A /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		41E73AC32B2C5FDF002AFFA8 /* ConverterApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ConverterApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		41E73AC62B2C5FDF002AFFA8 /* ConverterAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConverterAppApp.swift; sourceTree = "<group>"; };
 		41E73AC82B2C5FDF002AFFA8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -46,6 +50,8 @@
 				415A088D2B2C65AD00B3FE3F /* SettingsView.swift */,
 				415A088B2B2C647500B3FE3F /* TabBarView.swift */,
 				415A08932B2C707B00B3FE3F /* LocationsList.swift */,
+				415A08962B2DF03100B3FE3F /* MeetingSchedulerView.swift */,
+				41C0B6612B30FEF70050071A /* OnboardingView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -158,11 +164,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				415A08972B2DF03100B3FE3F /* MeetingSchedulerView.swift in Sources */,
 				41E73AC92B2C5FDF002AFFA8 /* ContentView.swift in Sources */,
 				415A088E2B2C65AD00B3FE3F /* SettingsView.swift in Sources */,
 				415A08942B2C707B00B3FE3F /* LocationsList.swift in Sources */,
 				415A088C2B2C647500B3FE3F /* TabBarView.swift in Sources */,
 				41E73AC72B2C5FDF002AFFA8 /* ConverterAppApp.swift in Sources */,
+				41C0B6622B30FEF70050071A /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,7 +320,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.timezone.converter.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -353,7 +363,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.timezone.converter.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

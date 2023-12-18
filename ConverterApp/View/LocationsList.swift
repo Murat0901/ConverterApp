@@ -78,21 +78,15 @@ struct LocationsList: View {
                     presentationMode.wrappedValue.dismiss()
                 }
             ).alert(isPresented: $showingPermissionAlert) {
-                Alert(title: Text("Permission Required"),
-                      message: Text("You need to give permission to view your current location."),
-                      primaryButton: .default(Text("Yes"), action: {
-                          print("asked")
-                    DispatchQueue.main.async {
-                        locationManager.requestAuthorization()
-                    }
-                      }),
-                      secondaryButton: .cancel()
+                Alert(
+                    title: Text("Permission Required"),
+                    message: Text("You need to give permission to view your current location."),
+                    primaryButton: .default(Text("Yes"), action: openAppSettings),
+                    secondaryButton: .cancel()
                 )
             }
         }
     }
-    
-    
     
     private func handleCurrentLocationSelection() {
         if locationManager.locationPermissionGranted {
@@ -113,6 +107,13 @@ struct LocationsList: View {
         let newLocation = Location(name: city.name, timeZone: TimeZone(identifier: city.timeZoneIdentifier) ?? TimeZone.current)
         addLocation(newLocation)
         presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func openAppSettings() {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(settingsUrl) else {
+            return
+        }
+        UIApplication.shared.open(settingsUrl)
     }
     
 }

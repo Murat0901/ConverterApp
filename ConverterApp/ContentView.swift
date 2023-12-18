@@ -9,21 +9,20 @@ import SwiftUI
 import CoreLocation
 
 struct ContentView: View {
+    @State private var selectedTime: Date = Date()
     @StateObject private var locationManager = LocationManager()
-    @State private var locations: [Location] {
-        didSet {
-            saveLocations()
-        }
-    }
-
+    @State private var locations: [Location]
+    @State private var showingMeetingSchedulerView = false
     @State private var showingSettings = false
     @State private var showingLocationsList = false
     @State private var showingEditAlert = false
     @State private var editingLocationIndex: Int?
     @State private var newLocationName = ""
-    @State private var editMode = EditMode.inactive  // State for edit mode
+    @State private var editMode = EditMode.inactive
     @StateObject private var userSettings = UserSettings()
     @AppStorage("showTimeZoneNames") private var showTimeZoneNames = false
+    @AppStorage("is24HourFormat") private var is24HourFormat = false
+
 
     init() {
         if let savedLocations = UserDefaults.standard.object(forKey: "SavedLocations") as? Data,
@@ -49,6 +48,20 @@ struct ContentView: View {
                         }
                     }
                 }
+                
+                TimelineView(selectedTime: $selectedTime, is24HourFormat: is24HourFormat) // Pass is24HourFormat here
+                    .frame(height: 60) // Set the height for the ScrollView
+                    .onChange(of: selectedTime) { newTime in
+                        updateLocationsTimes(to: newTime)
+                    }
+                
+                Button(action: resetToCurrentTime) {
+                    Text("Reset to Current Time")
+                        .foregroundColor(.blue) // Use your theme color here
+                        .font(.subheadline) // Smaller font size
+                        .multilineTextAlignment(.center) // Center-align the text
+                }
+                .padding(.vertical, 4)
 
                 // List of locations. Always displayed regardless of location permission status.
                 ForEach(locations.indices, id: \.self) { index in
@@ -101,11 +114,19 @@ struct ContentView: View {
                     }) {
                         Image(systemName: "plus")
                     }
+                    Button(action: {
+                        showingMeetingSchedulerView = true
+                    }) {
+                        Image(systemName: "calendar.badge.plus")
+                    }
                 }
             )
             .environment(\.editMode, $editMode)  // Bind editMode
             .sheet(isPresented: $showingSettings) {
                 SettingsView(userSettings: userSettings)
+            }
+            .sheet(isPresented: $showingMeetingSchedulerView) {
+                MeetingSchedulerView()
             }
             .sheet(isPresented: $showingLocationsList) {
                 LocationsList(locationManager: locationManager, addLocation: { newLocation in
@@ -134,16 +155,36 @@ struct ContentView: View {
             }
         }
     }
-
+    
+    private func resetToCurrentTime() {
+            selectedTime = Date()
+            updateLocationsTimes(to: Date())
+        }
+    
+    private func updateLocationsTimes(to newTime: Date) {
+        for i in 0..<locations.count {
+            locations[i].updateSelectedDate(newDate: newTime, is24HourFormat: is24HourFormat)
+        }
+    }
+    
     private var locationRows: some View {
-        ForEach(locations.indices, id: \.self) { index in
-            HStack {
-                Image(systemName: locations[index].isDayTime ? "sun.max.fill" : "moon.stars.fill")
-                Text(locations[index].name)
-                Spacer()
-                Text(locations[index].formattedTime(is24HourFormat: userSettings.is24HourFormat))
-                    .font(.title)
-                    .bold()
+        ForEach($locations.indices, id: \.self) { index in
+            VStack(alignment: .leading) {
+                HStack {
+                    Image(systemName: locations[index].isDayTime ? "sun.max.fill" : "moon.stars.fill")
+                    Text(locations[index].name)
+                    Spacer()
+                    Text(locations[index].currentTime)
+                        .font(.title)
+                        .bold()
+                }
+
+                if showTimeZoneNames {
+                    Text(locations[index].timeZoneAbbreviation)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .padding(.leading, 32) // Align with location name
+                }
             }
             .padding(.vertical, 8)
             .swipeActions {
@@ -224,70 +265,142 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 }
 
 
-struct Location: Codable {
+struct Location: Codable, Identifiable {
+    let id = UUID()
     var name: String
     var timeZone: TimeZone
-    
-    func formattedTime(is24HourFormat: Bool) -> String {
-        var calendar = Calendar.current
-        calendar.timeZone = timeZone
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = timeZone
-        dateFormatter.dateFormat = is24HourFormat ? "HH:mm" : "h:mm a"
-        return dateFormatter.string(from: Date())
+    var selectedDate: Date
+
+    init(name: String, timeZone: TimeZone, selectedDate: Date = Date()) {
+        self.name = name
+        self.timeZone = timeZone
+        self.selectedDate = selectedDate
     }
-    
+
+    var currentTime: String {
+        let formatter = DateFormatter()
+        formatter.timeZone = timeZone
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: selectedDate)
+    }
+
     var timeZoneAbbreviation: String {
         timeZone.abbreviation() ?? ""
     }
-    
+
     var isDayTime: Bool {
-        var calendar = Calendar.current
-        calendar.timeZone = timeZone
-        let hour = calendar.component(.hour, from: Date())
-        return hour >= 6 && hour < 18    }
-
-    var currentTime: String {
-        var calendar = Calendar.current
-        calendar.timeZone = timeZone
-        let hour = calendar.component(.hour, from: Date())
-        let minute = calendar.component(.minute, from: Date())
-
-        let is24HourFormat = UserDefaults.standard.bool(forKey: "is24HourFormat")
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = timeZone
-        dateFormatter.dateFormat = is24HourFormat ? "HH:mm" : "h:mm a"
-
-        return dateFormatter.string(from: Date())
+        let adjustedDate = selectedDate.adjusted(to: timeZone)
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: adjustedDate)
+        return hour >= 6 && hour < 18
     }
 
-    // Custom CodingKeys to exclude properties that should not be encoded/decoded
+    mutating func updateSelectedDate(newDate: Date, is24HourFormat: Bool) {
+        var calendar = Calendar.current
+        calendar.timeZone = timeZone
+        if is24HourFormat {
+            calendar.locale = Locale(identifier: "en_GB")
+        } else {
+            calendar.locale = Locale(identifier: "en_US")
+        }
+        if let newTime = calendar.date(bySettingHour: calendar.component(.hour, from: newDate), minute: calendar.component(.minute, from: newDate), second: 0, of: selectedDate) {
+            self.selectedDate = newTime
+        }
+    }
+
+    // Implement the necessary Codable protocol methods
     enum CodingKeys: String, CodingKey {
         case name
         case timeZone
     }
 
-    // Custom initializer for decoding
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decode(String.self, forKey: .name)
         let timeZoneIdentifier = try container.decode(String.self, forKey: .timeZone)
         timeZone = TimeZone(identifier: timeZoneIdentifier) ?? TimeZone.current
+        selectedDate = Date() // Initialize with current date
     }
 
-    // Custom method for encoding
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         try container.encode(timeZone.identifier, forKey: .timeZone)
     }
+}
 
-    // Standard initializer
-    init(name: String, timeZone: TimeZone) {
-        self.name = name
-        self.timeZone = timeZone
+
+struct TimelineView: View {
+    @Binding var selectedTime: Date
+    var is24HourFormat: Bool
+    let timeIncrements = generateTimeIncrements()
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 0) {
+                ForEach(timeIncrements, id: \.self) { time in
+                    TimeSlotView(time: time, isSelected: isSelectedTime(time), is24HourFormat: is24HourFormat)
+                        .onTapGesture {
+                            self.selectedTime = time
+                        }
+                }
+            }
+        }
+    }
+
+    private func isSelectedTime(_ time: Date) -> Bool {
+        return Calendar.current.isDate(selectedTime, equalTo: time, toGranularity: .minute)
+    }
+
+    private static func generateTimeIncrements() -> [Date] {
+        // Generate time increments for the next 24 hours in 15-minute intervals
+        var times: [Date] = []
+        let calendar = Calendar.current
+        let startDate = calendar.startOfDay(for: Date()) // Start at the beginning of the current day
+        for i in 0..<96 { // 96 increments for 24 hours
+            if let time = calendar.date(byAdding: .minute, value: i * 15, to: startDate) {
+                times.append(time)
+            }
+        }
+        return times
     }
 }
+
+// Extension to adjust a date to a specific timezone
+extension Date {
+    func adjusted(to timeZone: TimeZone) -> Date {
+        let seconds = TimeInterval(timeZone.secondsFromGMT(for: self))
+        return self.addingTimeInterval(seconds)
+    }
+}
+
+struct TimeSlotView: View {
+    let time: Date
+    let isSelected: Bool
+    var is24HourFormat: Bool
+
+    var body: some View {
+        Text(formatTime(time))
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .background(isSelected ? Color.blue : Color.clear)
+            .cornerRadius(8)
+            .foregroundColor(isSelected ? Color.white : Color.primary)
+            .overlay(
+                isSelected ? RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.blue, lineWidth: 3) : nil
+            )
+            .animation(.easeInOut, value: isSelected)
+            .transition(.scale)
+    }
+
+    private func formatTime(_ time: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = is24HourFormat ? "HH:mm" : "h:mm a"
+        return formatter.string(from: time)
+    }
+}
+
 
 
 struct ContentView_Previews: PreviewProvider {
@@ -295,5 +408,3 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
-
-
