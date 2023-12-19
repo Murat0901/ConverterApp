@@ -7,8 +7,131 @@
 
 import SwiftUI
 import CoreLocation
+import StoreKit
+
+struct OnboardingView: View {
+    @Binding var showOnboarding: Bool
+    @AppStorage("isOnboardingViewShowing") var isOnboardingViewShowing = true
+    @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
+    @State private var onboardingPageIndex: Int = 0
+    let onboardingPages: [(imageName: String, title: String, description: String)] = [
+        ("onboarding-1", "Welcome to Time Zone Converter", "Easily convert times across different time zones."),
+        ("onboarding-2", "Stay Organized", "Manage international meetings and calls with ease."),
+        ("onboarding-3", "Help Us Grow", "Give us 5 stars to support us! We really appreciate your support!")
+    ]
+
+    var body: some View {
+        if isOnboardingViewShowing {
+            ZStack {
+                VStack {
+                    OnboardingScreen(imageName: onboardingPages[onboardingPageIndex].imageName, title: onboardingPages[onboardingPageIndex].title, description: onboardingPages[onboardingPageIndex].description)
+                    Spacer() // Push the button to the bottom
+                }
+                
+                VStack {
+                    Spacer()
+                    Button(action: {
+                        if onboardingPageIndex == 1 {
+                            // Request rating when the second "Continue" button is clicked
+                            if let scene = UIApplication.shared.windows.first?.windowScene {
+                                SKStoreReviewController.requestReview(in: scene)
+                            }
+                        }
+
+                        if onboardingPageIndex < onboardingPages.count - 1 {
+                            onboardingPageIndex += 1
+                        } else {
+                            self.showOnboarding = false
+                             UserDefaults.standard.set(false, forKey: "isOnboardingViewShowing")
+                                if isFirstLaunch {
+                                // Trigger campaign and show paywall here
+                                /*
+                                 Superwall.shared.register(event: "campaign_trigger")
+                                 isFirstLaunch = false
+                                 */
+                                // Add code to show the paywall
+                            }
+                        }
+                    }) {
+                        HStack {
+                            Spacer()
+                            Text("Continue")
+                                .foregroundColor(.white)
+                            Spacer()
+                        }
+                        .padding(.vertical, 15) // Vertical padding for button height
+                        .background(Color.blue) // Background color of the button
+                    }
+                    .cornerRadius(10)
+                    .padding(.horizontal, 15) // Horizontal padding for space from the sides
+                    .padding(.bottom, 35) // Add padding at the bottom
+                }
+
+
+            }
+            .background(Color.black.ignoresSafeArea())
+            .foregroundColor(Color.primary)
+            .navigationBarHidden(true)
+            .onAppear{
+                 //ATT
+                /*
+                 DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                     if #available(iOS 14, *) {
+                         ATTrackingManager.requestTrackingAuthorization { (status) in
+                             //print("IDFA STATUS: \(status.rawValue)")
+                         }
+                     }
+                 
+                 
+                 DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+                     fetchUserSubscriptionStatus()
+                 }
+                 */
+            }
+        } else {
+            ContentView()
+        }
+    }
+
+    /*
+     func fetchUserSubscriptionStatus() {
+         Purchases.shared.getCustomerInfo { (purchaserInfo, error) in
+             guard let proEntitlement = purchaserInfo?.entitlements["pro"], proEntitlement.isActive else {
+                 return
+             }
+         }
+     }
+     */
+}
+
+struct OnboardingScreen: View {
+    var imageName: String
+    var title: String
+    var description: String
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxHeight: UIScreen.main.bounds.height / 3)
+                .padding()
+            Text(title)
+                .font(.largeTitle)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Text(description)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Spacer()
+        }
+        .padding(.top, 50)
+    }
+}
 
 struct ContentView: View {
+    @State private var showOnboarding = UserDefaults.standard.bool(forKey: "isOnboardingViewShowing")
     @State private var selectedTime: Date = Date()
     @StateObject private var locationManager = LocationManager()
     @State private var locations: [Location]
@@ -38,120 +161,124 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationView {
-            List {
-                // Show permission denied button only if location permission is denied
-                if locationManager.locationPermissionDenied && locations.first?.name == "Current Location" {
-                    Button("Please allow your location usage") {
-                        DispatchQueue.main.async {
-                            locationManager.requestAuthorization()
+        if showOnboarding {
+            OnboardingView(showOnboarding: $showOnboarding)
+        } else {
+            NavigationView {
+                List {
+                    // Show permission denied button only if location permission is denied
+                    if locationManager.locationPermissionDenied && locations.first?.name == "Current Location" {
+                        Button("Please allow your location usage") {
+                            DispatchQueue.main.async {
+                                locationManager.requestAuthorization()
+                            }
                         }
                     }
-                }
-                
-                TimelineView(selectedTime: $selectedTime, is24HourFormat: is24HourFormat) // Pass is24HourFormat here
-                    .frame(height: 60) // Set the height for the ScrollView
-                    .onChange(of: selectedTime) { newTime in
-                        updateLocationsTimes(to: newTime)
+                    
+                    TimelineView(selectedTime: $selectedTime, is24HourFormat: is24HourFormat) // Pass is24HourFormat here
+                        .frame(height: 60) // Set the height for the ScrollView
+                        .onChange(of: selectedTime) { newTime in
+                            updateLocationsTimes(to: newTime)
+                        }
+                    
+                    Button(action: resetToCurrentTime) {
+                        Text("Reset to Current Time")
+                            .foregroundColor(.blue) // Use your theme color here
+                            .font(.subheadline) // Smaller font size
+                            .multilineTextAlignment(.center) // Center-align the text
                     }
-                
-                Button(action: resetToCurrentTime) {
-                    Text("Reset to Current Time")
-                        .foregroundColor(.blue) // Use your theme color here
-                        .font(.subheadline) // Smaller font size
-                        .multilineTextAlignment(.center) // Center-align the text
-                }
-                .padding(.vertical, 4)
-
-                // List of locations. Always displayed regardless of location permission status.
-                ForEach(locations.indices, id: \.self) { index in
-                    HStack {
-                        Image(systemName: locations[index].isDayTime ? "sun.max.fill" : "moon.stars.fill")
-                        Text(locations[index].name)
-                        Spacer()
-                        Text(locations[index].currentTime)
-                            .font(.title)
-                            .bold()
+                    .padding(.vertical, 4)
+                    
+                    // List of locations. Always displayed regardless of location permission status.
+                    ForEach(locations.indices, id: \.self) { index in
+                        HStack {
+                            Image(systemName: locations[index].isDayTime ? "sun.max.fill" : "moon.stars.fill")
+                            Text(locations[index].name)
+                            Spacer()
+                            Text(locations[index].currentTime)
+                                .font(.title)
+                                .bold()
                             if showTimeZoneNames {
                                 Text(locations[index].timeZoneAbbreviation)
                                     .font(.caption)
                                     .foregroundColor(.gray)
                             }
-                    }
-                    .padding(.vertical, 8)
-                    .swipeActions {
-                        Button(role: .none) {
-                            editingLocationIndex = index
-                            newLocationName = locations[index].name
-                            showingEditAlert = true
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
                         }
-                        .tint(.blue)
-
-                        Button(role: .destructive) {
-                            delete(at: index)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+                        .padding(.vertical, 8)
+                        .swipeActions {
+                            Button(role: .none) {
+                                editingLocationIndex = index
+                                newLocationName = locations[index].name
+                                showingEditAlert = true
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.blue)
+                            
+                            Button(role: .destructive) {
+                                delete(at: index)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
                         }
                     }
+                    .onMove(perform: move)
                 }
-                .onMove(perform: move)
-            }
-            .navigationBarTitle("Time Zones")
-            .navigationBarItems(
-                leading: Button(action: {
-                    showingSettings = true
-                }) {
-                    Image(systemName: "gearshape.fill")
-                },
-                trailing: HStack {
-                    if locations.count > 1 {
-                        EditButton()  // Add an EditButton to enable list editing
-                    }
-                    Button(action: {
-                        showingLocationsList = true
+                .navigationBarTitle("Time Zones")
+                .navigationBarItems(
+                    leading: Button(action: {
+                        showingSettings = true
                     }) {
-                        Image(systemName: "plus")
+                        Image(systemName: "gearshape.fill")
+                    },
+                    trailing: HStack {
+                        if locations.count > 1 {
+                            EditButton()  // Add an EditButton to enable list editing
+                        }
+                        Button(action: {
+                            showingLocationsList = true
+                        }) {
+                            Image(systemName: "plus")
+                        }
+                        Button(action: {
+                            showingMeetingSchedulerView = true
+                        }) {
+                            Image(systemName: "calendar.badge.plus")
+                        }
                     }
-                    Button(action: {
-                        showingMeetingSchedulerView = true
-                    }) {
-                        Image(systemName: "calendar.badge.plus")
-                    }
+                )
+                .environment(\.editMode, $editMode)  // Bind editMode
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView(userSettings: userSettings)
                 }
-            )
-            .environment(\.editMode, $editMode)  // Bind editMode
-            .sheet(isPresented: $showingSettings) {
-                SettingsView(userSettings: userSettings)
-            }
-            .sheet(isPresented: $showingMeetingSchedulerView) {
-                MeetingSchedulerView()
-            }
-            .sheet(isPresented: $showingLocationsList) {
-                LocationsList(locationManager: locationManager, addLocation: { newLocation in
-                    if newLocation.name == "Current Location" {
-                        if locationManager.locationPermissionGranted {
+                .sheet(isPresented: $showingMeetingSchedulerView) {
+                    MeetingSchedulerView()
+                }
+                .sheet(isPresented: $showingLocationsList) {
+                    LocationsList(locationManager: locationManager, addLocation: { newLocation in
+                        if newLocation.name == "Current Location" {
+                            if locationManager.locationPermissionGranted {
+                                self.locations.append(newLocation)
+                            } else if !locationManager.locationPermissionDenied {
+                                print("permission asked")
+                                locationManager.requestAuthorization()
+                            } // No action if permission is explicitly denied
+                        } else {
                             self.locations.append(newLocation)
-                        } else if !locationManager.locationPermissionDenied {
-                            print("permission asked")
-                            locationManager.requestAuthorization()
-                        } // No action if permission is explicitly denied
-                    } else {
-                        self.locations.append(newLocation)
-                    }
-                })
-            }
-            .alert("Edit Location", isPresented: $showingEditAlert) {
-                TextField("Enter new location name", text: $newLocationName)
-                Button("Save") {
-                    if let index = editingLocationIndex {
-                        editLocation(at: index, newName: newLocationName)
-                    }
+                        }
+                    })
                 }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text("Enter a new name for the location.")
+                .alert("Edit Location", isPresented: $showingEditAlert) {
+                    TextField("Enter new location name", text: $newLocationName)
+                    Button("Save") {
+                        if let index = editingLocationIndex {
+                            editLocation(at: index, newName: newLocationName)
+                        }
+                    }
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("Enter a new name for the location.")
+                }
             }
         }
     }

@@ -9,9 +9,19 @@ import SwiftUI
 
 @main
 struct ConverterAppApp: App {
+    @State private var hasShownOnboarding = UserDefaults.standard.bool(forKey: UserDefaults.hasShownOnboardingKey)
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if hasShownOnboarding {
+                ContentView()
+            } else {
+                OnboardingView(showOnboarding: $hasShownOnboarding)
+            }
         }
     }
+}
+
+extension UserDefaults {
+    static let hasShownOnboardingKey = "hasShownOnboarding"
 }
