@@ -6,11 +6,16 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct ConverterAppApp: App {
     @State private var hasShownOnboarding = UserDefaults.standard.bool(forKey: UserDefaults.hasShownOnboardingKey)
-
+    
+    init() {
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             if hasShownOnboarding {

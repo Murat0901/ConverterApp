@@ -299,6 +299,7 @@ struct ContentView: View {
             VStack(alignment: .leading) {
                 HStack {
                     Image(systemName: locations[index].isDayTime ? "sun.max.fill" : "moon.stars.fill")
+                        .font(.system(size: 30))
                     Text(locations[index].name)
                     Spacer()
                     Text(locations[index].currentTime)
