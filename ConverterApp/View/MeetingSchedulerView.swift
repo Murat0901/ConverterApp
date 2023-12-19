@@ -51,7 +51,7 @@ struct MeetingSchedulerView: View {
                 }
             }
             .sheet(isPresented: $showingEventEditView) {
-                EventEditView(eventStore: eventStore, event: createEvent())
+                EventEditView(eventStore: eventStore, event: createEvent(), isPresented: $showingEventEditView)
             }
         }
     }
@@ -170,18 +170,35 @@ struct TimeZoneItem: Identifiable {
 struct EventEditView: UIViewControllerRepresentable {
     let eventStore: EKEventStore
     let event: EKEvent
+    @Binding var isPresented: Bool
 
     func makeUIViewController(context: Context) -> EKEventEditViewController {
         let viewController = EKEventEditViewController()
         viewController.eventStore = eventStore
         viewController.event = event
+        viewController.editViewDelegate = context.coordinator
         return viewController
     }
 
-    func updateUIViewController(_ uiViewController: EKEventEditViewController, context: Context) {
-        // No update needed
+    func updateUIViewController(_ uiViewController: EKEventEditViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, EKEventEditViewDelegate {
+        var parent: EventEditView
+
+        init(_ parent: EventEditView) {
+            self.parent = parent
+        }
+
+        func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
+            parent.isPresented = false
+        }
     }
 }
+
 
 struct MeetingSchedulerView_Previews: PreviewProvider {
     static var previews: some View {
